@@ -16,9 +16,37 @@
  */
 package me.johnnyapol.Mira;
 
+import me.johnnyapol.Mira.System.ProcessManager;
+import me.johnnyapol.Mira.System.WrappedProcess;
+import me.johnnyapol.Mira.Tasks.ProcessKeepAliveTask;
+import me.johnnyapol.Mira.Tasks.TaskManager;
+import me.johnnyapol.Mira.Utils.Tuple;
+
 public class Main {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		TaskManager taskMgr = new TaskManager();
+		ProcessManager processMgr = new ProcessManager();
 		
+		ProcessBuilder builder = new ProcessBuilder();
+		builder.command("node", "app.js");
+		
+		ProcessBuilder nginx = new ProcessBuilder();
+		nginx.command("nginx", "-g", "daemon off;");
+		
+		
+		//builder.directory(new File("/home/john/Arch"));
+		Tuple<Integer, WrappedProcess> test = processMgr.createProcess(builder);
+     	Tuple<Integer, WrappedProcess> nginx_tuple = processMgr.createProcess(nginx);
+		
+		ProcessKeepAliveTask task = new ProcessKeepAliveTask();
+		
+		taskMgr.scheduleTask(task, test.getSecond());
+		taskMgr.scheduleTask(task, nginx_tuple.getSecond());
+		
+		while (true) {
+			Thread.sleep(5000);
+			taskMgr.executeTasks();
+		}
 	}
 }

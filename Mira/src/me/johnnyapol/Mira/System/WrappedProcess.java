@@ -38,12 +38,22 @@ public class WrappedProcess {
 	private int id = -1;
 	private ProcessManager manager;
 	
-	public WrappedProcess(ProcessBuilder _builder, int _id, ProcessManager _manager) {
+	/** 
+	 * Creates a new WrappedPorcess instance
+	 * @param _builder The Process information 
+	 * @param _id The ID of the process
+	 * @param _manager The process manager associated with this process
+	 */
+	protected WrappedProcess(ProcessBuilder _builder, int _id, ProcessManager _manager) {
 		this.builder = _builder;
 		this.id = _id;
 		this.manager = _manager;
 	}
 	
+	/**
+	 * Starts the process
+	 * @throws IOException
+	 */
 	protected void start() throws IOException {
 		if (this.is_running) throw new IllegalStateException("Process is already running!");
 		this.is_running = true;
@@ -53,6 +63,10 @@ public class WrappedProcess {
 		process = builder.start();
 	}
 	
+	/**
+	 * Restarts the process
+	 * @throws IOException
+	 */
 	protected void restart() throws IOException {
 		if (this.is_running) {
 			this.stop();
@@ -61,22 +75,34 @@ public class WrappedProcess {
 		this.start();
 	}
 	
+	/**
+	 * Stops the process
+	 */
 	protected void stop() {
 		if (!this.is_running) throw new IllegalStateException("Process is not running!");
 		this.is_running = false;
 		this.process.destroy();
 	}
 	
+	/**
+	 * @return The InputStream associated with the process
+	 */
 	public InputStream getInputStream() {
 		if (!this.is_running) throw new IllegalStateException("Process is not running!");
 		return this.process.getInputStream();
 	}
 	
+	/**
+	 * @return The OutputStream associated with the process
+	 */
 	public OutputStream getOutputStream() {
 		if (!this.is_running) throw new IllegalStateException("Process is not running!");
 		return this.process.getOutputStream();
 	}
 	
+	/**
+	 * @return True if the Process is currently alive and false if the process is not running.
+	 */
 	public boolean isRunning() {
 		// Check process stats
 		if (this.is_running) {
@@ -87,10 +113,18 @@ public class WrappedProcess {
 		return false;
 	}
 	
+	/**
+	 * Returns the ID associated with this process
+	 * @return Process ID
+	 */
 	public int getId() {
 		return this.id;
 	}
 	
+	/**
+	 * Returns the Process Manager associated with this process
+	 * @return The Process Manager
+	 */
 	public ProcessManager getProcessManager() {
 		return this.manager;
 	}
