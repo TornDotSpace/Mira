@@ -33,38 +33,38 @@ public class Properties {
 	protected Map<String, String> properties_list = new HashMap<String, String>();
 
 	protected static final Logger logger = Logger.getLogger("Mira");
-	
+
 	private void init(InputStreamReader reader) throws IOException {
 		BufferedReader _fileReader = new BufferedReader(reader);
-		
+
 		String line = null;
 		while ((line = _fileReader.readLine()) != null) {
 			// Skip lines beginning with a '#' (comments)
 			if (line.charAt(0) == '#') {
 				continue;
 			}
-			
+
 			if (!line.contains("=")) {
 				logger.warning("[Properties] Invalid line '" + line);
 				continue;
 			}
-			
+
 			String[] split = line.split("=");
 			if (split.length != 2) {
 				logger.warning("[Properties] Invalid line '" + line);
 				continue;
 			}
-			
+
 			properties_list.put(split[0], split[1]);
 		}
-		
+
 		// Cleanup
 		_fileReader.close();
 	}
-	
+
 	public void write(File file) throws IOException {
 		BufferedWriter _fileWriter = new BufferedWriter(new FileWriter(file));
-		
+
 		String line = null;
 		for (Iterator<String> itr = this.properties_list.keySet().iterator(); itr.hasNext(); line = itr.next()) {
 			_fileWriter.write(line + System.lineSeparator());
@@ -72,15 +72,15 @@ public class Properties {
 		// Cleanup
 		_fileWriter.close();
 	}
-	
+
 	public Properties(File file) throws IOException {
 		this.init(new FileReader(file));
 	}
-	
+
 	public Properties(InputStream io) throws IOException {
 		this.init(new InputStreamReader(io));
 	}
-	
+
 	public Properties() {
 		// Empty properties
 	}
@@ -88,24 +88,24 @@ public class Properties {
 	public boolean contains(String key) {
 		return this.properties_list.containsKey(key);
 	}
-	
+
 	public String getString(String key, String fill) {
 		if (!this.contains(key)) {
 			this.properties_list.put(key, fill);
 			return fill;
 		}
-		
+
 		return this.properties_list.get(key);
 	}
-	
+
 	public String getString(String key) {
 		if (!this.contains(key)) {
 			throw new IllegalArgumentException("Key not found: " + key);
 		}
-		
+
 		return this.getString(key, "");
 	}
-	
+
 	public Integer getInteger(String key, int fill) {
 		if (!this.contains(key)) {
 			this.properties_list.put(key, String.valueOf(fill));
@@ -113,85 +113,83 @@ public class Properties {
 		}
 		return Integer.parseInt(this.properties_list.get(key));
 	}
-	
+
 	public Integer getInteger(String key) {
 		if (!this.contains(key)) {
 			throw new IllegalArgumentException("Key not found: " + key);
 		}
-		
+
 		return this.getInteger(key, 0);
 	}
-	
+
 	public Boolean getBoolean(String key, boolean fill) {
 		if (!this.contains(key)) {
 			this.properties_list.put(key, String.valueOf(fill));
 			return fill;
 		}
-		
+
 		return Boolean.parseBoolean(this.properties_list.get(key));
 	}
-	
+
 	public Boolean getBoolean(String key) {
 		if (!this.contains(key)) {
 			throw new IllegalArgumentException("Key not found: " + key);
 		}
 		return this.getBoolean(key, false);
 	}
-	
-	
+
 	public Float getFloat(String key, float fill) {
 		if (!this.contains(key)) {
 			this.properties_list.put(key, String.valueOf(fill));
 			return fill;
 		}
-		
+
 		return Float.parseFloat(this.properties_list.get(key));
 	}
-	
+
 	public Float getFloat(String key) {
 		if (!this.contains(key)) {
 			throw new IllegalArgumentException("Key not found: " + key);
 		}
-		
+
 		return this.getFloat(key, 0);
 	}
-	
+
 	public Double getDouble(String key, double fill) {
 		if (!this.contains(key)) {
 			this.properties_list.put(key, String.valueOf(fill));
 			return fill;
 		}
-		
+
 		return Double.parseDouble(this.properties_list.get(key));
 	}
-	
+
 	public Double getDouble(String key) {
 		if (!this.contains(key)) {
 			throw new IllegalArgumentException("Key not found: " + key);
 		}
-		
+
 		return this.getDouble(key, 0);
 	}
-	
+
 	public void setString(String key, String value) {
 		this.properties_list.put(key, value);
 	}
-	
+
 	public void setInteger(String key, int value) {
 		this.properties_list.put(key, String.valueOf(value));
 	}
-	
-	
+
 	public void setBoolean(String key, boolean value) {
 		this.properties_list.put(key, String.valueOf(value));
 	}
-	
+
 	public void setFloat(String key, float value) {
 		this.properties_list.put(key, String.valueOf(value));
 	}
-	
+
 	public void setDouble(String key, double value) {
 		this.properties_list.put(key, String.valueOf(value));
 	}
-	
+
 }

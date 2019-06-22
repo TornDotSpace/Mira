@@ -19,20 +19,20 @@ package me.johnnyapol.Mira.Utils;
 public class Tuple<T extends Object, S extends Object> {
 	private T first;
 	private S second;
-	
+
 	public Tuple(T _first, S _second) {
 		this.first = _first;
 		this.second = _second;
 	}
-	
+
 	public T getFirst() {
 		return this.first;
 	}
-	
+
 	public S getSecond() {
 		return this.second;
 	}
-	
+
 	public void set(T _first, S _second) {
 		this.first = _first;
 		this.second = _second;

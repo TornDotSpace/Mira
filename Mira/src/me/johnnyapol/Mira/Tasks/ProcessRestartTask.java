@@ -2,7 +2,7 @@ package me.johnnyapol.Mira.Tasks;
 
 import me.johnnyapol.Mira.System.WrappedProcess;
 
-public class ProcessRestartTask implements Task{
+public class ProcessRestartTask implements Task {
 
 	@Override
 	public String getName() {

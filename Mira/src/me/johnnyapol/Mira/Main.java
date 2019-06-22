@@ -25,33 +25,30 @@ import me.johnnyapol.Mira.Tasks.TaskManager;
 import me.johnnyapol.Mira.Utils.GitUtils;
 import me.johnnyapol.Mira.Utils.Tuple;
 
-
-
 public class Main {
-	
+
 	private static Logger logger = Logger.getLogger("Mira");
-	
+
 	public static void main(String[] args) throws Exception {
-		logger.info("--- Starting Mira version git-" + GitUtils.getBuildCommit() + "-" + GitUtils.getBranch() + "-" + GitUtils.getBuildVersion() + "-" + GitUtils.getBuildTime() + " ---");
+		logger.info("--- Starting Mira version git-" + GitUtils.getBuildCommit() + "-" + GitUtils.getBranch() + "-"
+				+ GitUtils.getBuildVersion() + "-" + GitUtils.getBuildTime() + " ---");
 		TaskManager taskMgr = new TaskManager();
 		ProcessManager processMgr = new ProcessManager();
-		
+
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command("node", "app.js");
-		
+
 		ProcessBuilder nginx = new ProcessBuilder();
 		nginx.command("nginx", "-g", "daemon off;");
-		
-		
-		//builder.directory(new File("/home/john/Arch"));
+
 		Tuple<Integer, WrappedProcess> test = processMgr.createProcess(builder);
-     	Tuple<Integer, WrappedProcess> nginx_tuple = processMgr.createProcess(nginx);
-		
+		Tuple<Integer, WrappedProcess> nginx_tuple = processMgr.createProcess(nginx);
+
 		ProcessKeepAliveTask task = new ProcessKeepAliveTask();
-		
+
 		taskMgr.scheduleTask(task, test.getSecond());
 		taskMgr.scheduleTask(task, nginx_tuple.getSecond());
-		
+
 		while (true) {
 			Thread.sleep(5000);
 			taskMgr.executeTasks();

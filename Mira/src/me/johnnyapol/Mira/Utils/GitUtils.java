@@ -22,30 +22,31 @@ import java.util.logging.Logger;
 
 public class GitUtils {
 	private static Logger logger = Logger.getLogger("Mira");
-	
+
 	private static Properties git_data = null;
-	
+
 	static {
 		try {
 			git_data = new JsonProperties(GitUtils.class.getClassLoader().getResourceAsStream("git.properties"));
 		} catch (IOException e) {
-			logger.log(Level.WARNING, "Failed to load git.properties (not built with maven?). Build data will be unavailable", e);
+			logger.log(Level.WARNING,
+					"Failed to load git.properties (not built with maven?). Build data will be unavailable", e);
 			git_data = new Properties();
-		}	
+		}
 	}
-	
+
 	public static String getBuildCommit() {
 		return git_data.getString("git.commit.id", "null");
 	}
-	
+
 	public static String getBranch() {
 		return git_data.getString("git.branch", "nosource");
 	}
-	
+
 	public static String getBuildVersion() {
 		return git_data.getString("git.build.version", "nogit");
 	}
-	
+
 	public static String getBuildTime() {
 		return git_data.getString("git.build.time", "1969-12-31");
 	}

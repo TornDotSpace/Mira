@@ -19,27 +19,35 @@ package me.johnnyapol.Mira.Tasks;
 import me.johnnyapol.Mira.System.WrappedProcess;
 
 public interface Task {
-	
+
 	/**
 	 * @return The name of the Task
 	 */
 	public String getName();
+
 	/**
-	 * Called when the TaskManager executes the task. The core logic of should be executed here
-	 * Note: This method will block the rest of the queue unless the task is scheduled as a background task
+	 * Called when the TaskManager executes the task. The core logic of should be
+	 * executed here Note: This method will block the rest of the queue unless the
+	 * task is scheduled as a background task
+	 * 
 	 * @param process The process the task is running on
-	 * @throws Throwable Any exception thrown by an executing task will be caught and logged to avoid crashing the Thread managing the TaskManager queue
+	 * @throws Throwable Any exception thrown by an executing task will be caught
+	 *                   and logged to avoid crashing the Thread managing the
+	 *                   TaskManager queue
 	 */
 	public void execute(WrappedProcess process) throws Throwable;
-	
+
 	/**
-	 * A repeated task will be automatically reinserted into the schedule queue and run again after a certain delay
+	 * A repeated task will be automatically reinserted into the schedule queue and
+	 * run again after a certain delay
+	 * 
 	 * @return Whether or not this task is a repeated task
 	 */
-	public boolean isRepeatedTask(); 
-	
+	public boolean isRepeatedTask();
+
 	/**
-	 * @return The delay in milliseconds of when the task should be scheduled to run again (if the task is a repeated task).
+	 * @return The delay in milliseconds of when the task should be scheduled to run
+	 *         again (if the task is a repeated task).
 	 */
 	public long getRepeatInterval();
 }

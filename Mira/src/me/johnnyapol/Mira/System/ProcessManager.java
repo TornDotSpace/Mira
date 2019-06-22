@@ -26,70 +26,68 @@ import me.johnnyapol.Mira.Utils.Tuple;
 public class ProcessManager {
 
 	private Map<Integer, WrappedProcess> processes = new HashMap<Integer, WrappedProcess>();
-	
+
 	private int process_counter = 0;
 	private static final Logger logger = Logger.getLogger("Mira");
-	
+
 	public ProcessManager() {
 	}
-	
+
 	public WrappedProcess getProcess(int id) {
 		if (!this.processes.containsKey(id)) {
 			throw new IllegalArgumentException("Process " + id + " not found!");
 		}
 		return this.processes.get(id);
 	}
-	
-	
-	public Tuple<Integer,WrappedProcess> createProcess(ProcessBuilder process_info) throws IOException {
+
+	public Tuple<Integer, WrappedProcess> createProcess(ProcessBuilder process_info) throws IOException {
 		logger.info("[ProcessManager] Creating new process " + this.process_counter + ": " + process_info.toString());
-		
+
 		WrappedProcess process = new WrappedProcess(process_info, this.process_counter, this);
 		process.start();
 		this.processes.put(this.process_counter, process);
 		this.process_counter++;
-		return new Tuple<Integer,WrappedProcess>(this.process_counter - 1, process);
+		return new Tuple<Integer, WrappedProcess>(this.process_counter - 1, process);
 	}
-	
+
 	public void stopProcess(int id) {
 		if (!this.processes.containsKey(id)) {
 			throw new IllegalArgumentException("Process " + id + " was not found!");
 		}
-		
+
 		logger.info("[ProcessManager] Stopping process " + id);
 		this.processes.get(id).stop();
 	}
-	
+
 	public void startProcess(int id) throws IOException {
 		if (!this.processes.containsKey(id)) {
 			throw new IllegalArgumentException("Process " + id + " was not found!");
 		}
-		
+
 		logger.info("[ProcessManager] Starting process " + id);
 		this.processes.get(id).start();
 	}
-	
-	
+
 	public void restartProcess(int id) throws IOException {
 		if (!this.processes.containsKey(id)) {
 			throw new IllegalArgumentException("Process " + id + " was not found!");
 		}
-		
+
 		logger.info("[ProcessManager] Stopping process " + id);
 		this.processes.get(id).restart();
 	}
-	
+
 	public void destroyProcess(int id) {
 		if (!this.processes.containsKey(id)) {
 			throw new IllegalArgumentException("Process " + id + " was not found!");
 		}
-		
+
 		logger.info("[ProcessManager] Destroying process " + id);
 		WrappedProcess process = this.processes.get(id);
 		if (process.isRunning()) {
 			process.stop();
 		}
-		
+
 		this.processes.remove(id);
 	}
 }
