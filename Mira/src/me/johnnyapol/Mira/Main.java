@@ -16,15 +16,23 @@
  */
 package me.johnnyapol.Mira;
 
+import java.util.logging.Logger;
+
 import me.johnnyapol.Mira.System.ProcessManager;
 import me.johnnyapol.Mira.System.WrappedProcess;
 import me.johnnyapol.Mira.Tasks.ProcessKeepAliveTask;
 import me.johnnyapol.Mira.Tasks.TaskManager;
+import me.johnnyapol.Mira.Utils.GitUtils;
 import me.johnnyapol.Mira.Utils.Tuple;
+
+
 
 public class Main {
 	
+	private static Logger logger = Logger.getLogger("Mira");
+	
 	public static void main(String[] args) throws Exception {
+		logger.info("--- Starting Mira version git-" + GitUtils.getBuildCommit() + "-" + GitUtils.getBranch() + "-" + GitUtils.getBuildVersion() + "-" + GitUtils.getBuildTime() + " ---");
 		TaskManager taskMgr = new TaskManager();
 		ProcessManager processMgr = new ProcessManager();
 		

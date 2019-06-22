@@ -22,18 +22,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class Properties {
-	private Map<String, String> properties_list = new HashMap<String, String>();
+	protected Map<String, String> properties_list = new HashMap<String, String>();
+
+	protected static final Logger logger = Logger.getLogger("Mira");
 	
-	private static final Logger logger = Logger.getLogger("Mira");
-	
-	private void init(File file) throws IOException {
-		BufferedReader _fileReader = new BufferedReader(new FileReader(file));
+	private void init(InputStreamReader reader) throws IOException {
+		BufferedReader _fileReader = new BufferedReader(reader);
 		
 		String line = null;
 		while ((line = _fileReader.readLine()) != null) {
@@ -43,13 +45,13 @@ public class Properties {
 			}
 			
 			if (!line.contains("=")) {
-				logger.warning("[Properties] Invalid line '" + line + " in file " + file.getAbsolutePath());
+				logger.warning("[Properties] Invalid line '" + line);
 				continue;
 			}
 			
 			String[] split = line.split("=");
 			if (split.length != 2) {
-				logger.warning("[Properties] Invalid line '" + line + " in file " + file.getAbsolutePath());
+				logger.warning("[Properties] Invalid line '" + line);
 				continue;
 			}
 			
@@ -72,9 +74,17 @@ public class Properties {
 	}
 	
 	public Properties(File file) throws IOException {
-		this.init(file);
+		this.init(new FileReader(file));
 	}
 	
+	public Properties(InputStream io) throws IOException {
+		this.init(new InputStreamReader(io));
+	}
+	
+	public Properties() {
+		// Empty properties
+	}
+
 	public boolean contains(String key) {
 		return this.properties_list.containsKey(key);
 	}
