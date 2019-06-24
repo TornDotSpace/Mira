@@ -36,7 +36,7 @@ public class Main {
 		ProcessManager processMgr = new ProcessManager();
 
 		ProcessBuilder builder = new ProcessBuilder();
-		builder.command("node", "app.js");
+		builder.command("node", "app.js", "8887");
 
 		ProcessBuilder nginx = new ProcessBuilder();
 		nginx.command("nginx", "-g", "daemon off;");
