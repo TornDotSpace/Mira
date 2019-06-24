@@ -22,7 +22,7 @@ import me.johnnyapol.Mira.System.WrappedProcess;
 
 public class ProcessKeepAliveTask implements Task {
 	private final static Logger logger = Logger.getLogger("Mira");
-	
+
 	@Override
 	public String getName() {
 		return "KeepAlive";

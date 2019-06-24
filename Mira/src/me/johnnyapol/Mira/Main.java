@@ -16,6 +16,7 @@
  */
 package me.johnnyapol.Mira;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 import me.johnnyapol.Mira.System.ProcessManager;
@@ -32,9 +33,21 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		logger.info("--- Starting Mira version git-" + GitUtils.getBuildCommit() + "-" + GitUtils.getBranch() + "-"
 				+ GitUtils.getBuildVersion() + "-" + GitUtils.getBuildTime() + " ---");
+		
 		TaskManager taskMgr = new TaskManager();
 		ProcessManager processMgr = new ProcessManager();
-
+		
+		// Try to load configuration
+		File config_folder = new File("config");
+		
+		if (!config_folder.exists()) {
+			logger.info("Config: Creating configuration directory at '" + config_folder.getAbsolutePath() + "'");
+			if (!config_folder.mkdirs()) {
+				logger.severe("Config: Failed to create directory '" + config_folder.getAbsolutePath() + "'. Aborting...");
+				return; 
+			}
+		}
+		
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command("node", "app.js");
 
