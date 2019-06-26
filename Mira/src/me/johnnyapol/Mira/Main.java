@@ -54,13 +54,18 @@ public class Main {
 		ProcessBuilder nginx = new ProcessBuilder();
 		nginx.command("nginx", "-g", "daemon off;");
 
+		ProcessBuilder web = new ProcessBuilder(); 
+		web.command("node", "web.js", "8443");
+
 		Tuple<Integer, WrappedProcess> test = processMgr.createProcess(builder);
 		Tuple<Integer, WrappedProcess> nginx_tuple = processMgr.createProcess(nginx);
+		Tuple<Integer, WrappedProcess> web_tuple = processMgr.createProcess(web);
 
 		ProcessKeepAliveTask task = new ProcessKeepAliveTask();
 
 		taskMgr.scheduleTask(task, test.getSecond());
 		taskMgr.scheduleTask(task, nginx_tuple.getSecond());
+		taskMgr.scheduleTask(task, web_tuple.getSecond());
 
 		while (true) {
 			Thread.sleep(5000);
