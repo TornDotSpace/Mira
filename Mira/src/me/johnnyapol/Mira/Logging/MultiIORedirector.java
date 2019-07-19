@@ -16,6 +16,23 @@
  */
 package me.johnnyapol.Mira.Logging;
 
-public class LogFileManager {
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
 
+public class MultiIORedirector extends OutputStream{
+	
+	private List<OutputStream> streams; 
+	
+	public MultiIORedirector(List<OutputStream> _streams) {
+		this.streams = _streams;
+
+	
+	}
+	@Override
+	public void write(int arg0) throws IOException {
+		for (OutputStream stream : this.streams) {
+			stream.write(arg0);
+		}
+	}
 }

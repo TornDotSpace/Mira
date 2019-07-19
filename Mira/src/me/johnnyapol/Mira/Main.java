@@ -17,13 +17,15 @@
 package me.johnnyapol.Mira;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Logger;
 
 import me.johnnyapol.Mira.System.ProcessManager;
 import me.johnnyapol.Mira.System.WrappedProcess;
-import me.johnnyapol.Mira.Tasks.ProcessKeepAliveTask;
+import me.johnnyapol.Mira.Tasks.Task;
 import me.johnnyapol.Mira.Tasks.TaskManager;
 import me.johnnyapol.Mira.Utils.GitUtils;
+import me.johnnyapol.Mira.Utils.Properties;
 import me.johnnyapol.Mira.Utils.Tuple;
 
 public class Main {
@@ -37,6 +39,16 @@ public class Main {
 		TaskManager taskMgr = new TaskManager();
 		ProcessManager processMgr = new ProcessManager();
 		
+		File log_folder = new File("logs");
+		
+		if (!log_folder.exists()) {
+			logger.info("Core: Creating log directory at '" + log_folder.getAbsolutePath() + "'");
+			if (!log_folder.mkdirs()) {
+				logger.severe("Core: Failed to create directory '" + log_folder.getAbsolutePath() + "'. Aborting...");
+				return;
+			}
+		}
+		
 		// Try to load configuration
 		File config_folder = new File("config");
 		
@@ -48,27 +60,35 @@ public class Main {
 			}
 		}
 		
-		ProcessBuilder builder = new ProcessBuilder();
-		builder.command("node", "app.js", "8443");
-
-		ProcessBuilder nginx = new ProcessBuilder();
-		nginx.command("nginx", "-g", "daemon off;");
-
-		ProcessBuilder web = new ProcessBuilder(); 
-		web.command("node", "web.js", "8443");
-
-		Tuple<Integer, WrappedProcess> test = processMgr.createProcess(builder);
-		Tuple<Integer, WrappedProcess> nginx_tuple = processMgr.createProcess(nginx);
-		Tuple<Integer, WrappedProcess> web_tuple = processMgr.createProcess(web);
-
-		ProcessKeepAliveTask task = new ProcessKeepAliveTask();
-
-		taskMgr.scheduleTask(task, test.getSecond());
-		taskMgr.scheduleTask(task, nginx_tuple.getSecond());
-		taskMgr.scheduleTask(task, web_tuple.getSecond());
-
+		ConfigFile cfg = new ConfigFile();
+		
+		List<Properties> processes = cfg.getProcesses();
+		
+		for (Properties proc : processes) {
+			logger.info("[mira-start] Registering process : " + proc.getString("mira.process_name"));
+			
+			ProcessBuilder builder = new ProcessBuilder();
+			
+			String[] cmd = proc.getString("proc.exec").split(" ");
+			builder = builder.command(cmd);
+			
+			Tuple<Integer, WrappedProcess> mira_proc = processMgr.createProcess(builder, proc);
+			
+			
+			// Load tasks
+			
+			String[] tasks = proc.getString("proc.tasks").split(";");
+			
+			for (String task : tasks) {
+				Class<? extends Task> clazz = (Class<? extends Task>) Class.forName(task);
+				
+				Task the_task = clazz.newInstance();
+				taskMgr.scheduleTask(the_task, mira_proc.getSecond());
+			}
+		}
+		
 		while (true) {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 			taskMgr.executeTasks();
 		}
 	}

@@ -16,9 +16,13 @@
  */
 package me.johnnyapol.Mira.System;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
+
+import me.johnnyapol.Mira.Utils.Properties;
 
 /**
  * It's like a wrapper around a Christmas present but there's a system process
@@ -38,6 +42,14 @@ public class WrappedProcess {
 
 	private int id = -1;
 	private ProcessManager manager;
+	
+	// Logging 
+	private File stdout;
+	private File stderr;
+	
+	private String name;
+	
+	private Properties process_cfg = null;
 
 	/**
 	 * Creates a new WrappedPorcess instance
@@ -46,10 +58,12 @@ public class WrappedProcess {
 	 * @param _id      The ID of the process
 	 * @param _manager The process manager associated with this process
 	 */
-	protected WrappedProcess(ProcessBuilder _builder, int _id, ProcessManager _manager) {
+	protected WrappedProcess(ProcessBuilder _builder, int _id, ProcessManager _manager, Properties _cfg) {
 		this.builder = _builder;
 		this.id = _id;
 		this.manager = _manager;
+		this.process_cfg = _cfg;
+		this.name = this.process_cfg.getString("mira.process_name");
 	}
 
 	/**
@@ -63,8 +77,16 @@ public class WrappedProcess {
 		this.is_running = true;
 
 		// Temporary until we get a better way of managing IO
-		builder.inheritIO();
-		process = builder.start();
+		// Generate files 
+		Date date = new Date();
+		stdout = new File("logs", name + "-stdout-" + date.toString());
+		stderr = new File("logs", name + "-stderr-" + date.toString());
+		
+		stdout.createNewFile();
+		stderr.createNewFile();
+		
+		this.builder = this.builder.redirectError(this.stderr).redirectOutput(this.stdout);
+		this.process = this.builder.start();
 	}
 
 	/**
@@ -116,7 +138,7 @@ public class WrappedProcess {
 		// Check process stats
 		if (this.is_running) {
 			this.is_running = this.process.isAlive();
-			return this.process.isAlive();
+			return this.is_running;
 		}
 
 		return false;
@@ -138,5 +160,17 @@ public class WrappedProcess {
 	 */
 	public ProcessManager getProcessManager() {
 		return this.manager;
+	}
+	
+	public File getSTDOUTLog() {
+		return this.stdout;
+	}
+	
+	public File getSTDERRLog() {
+		return this.stderr;
+	}
+	
+	public Properties getProcessConfiguration() {
+		return this.process_cfg;
 	}
 }

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import me.johnnyapol.Mira.Utils.Properties;
 import me.johnnyapol.Mira.Utils.Tuple;
 
 public class ProcessManager {
@@ -40,10 +41,10 @@ public class ProcessManager {
 		return this.processes.get(id);
 	}
 
-	public Tuple<Integer, WrappedProcess> createProcess(ProcessBuilder process_info) throws IOException {
+	public Tuple<Integer, WrappedProcess> createProcess(ProcessBuilder process_info, Properties cfg) throws IOException {
 		logger.info("[ProcessManager] Creating new process " + this.process_counter + ": " + process_info.toString());
 
-		WrappedProcess process = new WrappedProcess(process_info, this.process_counter, this);
+		WrappedProcess process = new WrappedProcess(process_info, this.process_counter, this, cfg);
 		process.start();
 		this.processes.put(this.process_counter, process);
 		this.process_counter++;
