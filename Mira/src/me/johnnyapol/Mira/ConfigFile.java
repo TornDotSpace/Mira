@@ -59,7 +59,7 @@ public class ConfigFile {
 				
 				current_process = new Properties();
 				// Format: [process_name]
-				current_process.setString("mira.process_name", line.substring(line.indexOf('['), line.indexOf(']')));
+				current_process.setString("mira.process_name", line.substring(line.indexOf('[') + 1, line.indexOf(']')));
 				continue;
 			}
 			

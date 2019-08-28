@@ -18,6 +18,7 @@ package me.johnnyapol.Mira;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import me.johnnyapol.Mira.System.ProcessManager;
@@ -31,15 +32,30 @@ import me.johnnyapol.Mira.Utils.Tuple;
 public class Main {
 
 	private static Logger logger = Logger.getLogger("Mira");
-
+	
+	public static Properties parseCmdLineArgs(String[] args) {
+		Properties props = new Properties();
+		for (int i = 1; i < args.length; ++i) {
+			String[] split = args[i].split("=");
+			if (split.length < 2) {
+				logger.log(Level.SEVERE, "Core: Invalid argument: " + args[i]);
+				continue;
+			}
+			props.setString(split[0], split[1]);
+		}
+		return props;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		logger.info("--- Starting Mira version git-" + GitUtils.getBuildCommit() + "-" + GitUtils.getBranch() + "-"
 				+ GitUtils.getBuildVersion() + "-" + GitUtils.getBuildTime() + " ---");
 		
+		Properties cmdLine = parseCmdLineArgs(args);
+		
 		TaskManager taskMgr = new TaskManager();
 		ProcessManager processMgr = new ProcessManager();
 		
-		File log_folder = new File("logs");
+		File log_folder = new File(cmdLine.getString("log_folder", "logs"));
 		
 		if (!log_folder.exists()) {
 			logger.info("Core: Creating log directory at '" + log_folder.getAbsolutePath() + "'");
@@ -50,7 +66,7 @@ public class Main {
 		}
 		
 		// Try to load configuration
-		File config_folder = new File("config");
+		File config_folder = new File(cmdLine.getString("cfg_folder", "config"));
 		
 		if (!config_folder.exists()) {
 			logger.info("Config: Creating configuration directory at '" + config_folder.getAbsolutePath() + "'");
