@@ -23,10 +23,9 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import me.johnnyapol.Mira.System.WrappedProcess;
 import me.johnnyapol.Mira.Utils.Tuple;
 
-final class RunnableTaskWrapper implements Task {
+final class RunnableTaskWrapper extends Task {
 
 	private final Task task;
 	private final TaskManager taskManager;
@@ -34,6 +33,7 @@ final class RunnableTaskWrapper implements Task {
 	private final static Logger logger = Logger.getLogger("Mira");
 
 	public RunnableTaskWrapper(Task _task, TaskManager _tskMgr) {
+		super(null);
 		this.task = _task;
 		this.taskManager = _tskMgr;
 	}
@@ -44,21 +44,20 @@ final class RunnableTaskWrapper implements Task {
 	}
 
 	@Override
-	public void execute(WrappedProcess process) throws Throwable {
+	public void execute() throws Throwable {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					RunnableTaskWrapper.this.task.execute(process);
+					RunnableTaskWrapper.this.task.execute();
 				} catch (Throwable e) {
 					logger.log(Level.SEVERE, "[TaskManager] Throwable while executing backgrounded task "
-							+ RunnableTaskWrapper.this.task.getClass().getName() + " on process ID: " + process.getId(),
+							+ RunnableTaskWrapper.this.task.getClass().getName() + " on process ID: " + RunnableTaskWrapper.this.task.getProcess().getId(),
 							e);
 				}
 				// Reschedule task if necessary
 				if (RunnableTaskWrapper.this.task.isRepeatedTask()) {
-					RunnableTaskWrapper.this.taskManager.scheduleDelayedBackgroundTask(RunnableTaskWrapper.this.task,
-							process, RunnableTaskWrapper.this.task.getRepeatInterval());
+					RunnableTaskWrapper.this.taskManager.scheduleDelayedBackgroundTask(RunnableTaskWrapper.this.task, RunnableTaskWrapper.this.task.getRepeatInterval());
 				}
 			}
 		}, "Mira-Background-Task Thread").start();
@@ -73,21 +72,22 @@ final class RunnableTaskWrapper implements Task {
 	public long getRepeatInterval() {
 		return this.getRepeatInterval();
 	}
+
 };
 
 public class TaskManager {
 	// Holds current list of tasks that need to be processed on the next "tick" of
 	// the task manager
-	private Queue<Tuple<Task, WrappedProcess>> task_queue = new LinkedList<Tuple<Task, WrappedProcess>>();
+	private Queue<Task> task_queue = new LinkedList<Task>();
 
 	private final static Logger logger = Logger.getLogger("Mira");
 
 	// Used for our priority queue. Sorts the queue such that the task with the
 	// earlier timestamps percolate down the queue
-	private static Comparator<Tuple<Long, Tuple<Task, WrappedProcess>>> taskComparator = new Comparator<Tuple<Long, Tuple<Task, WrappedProcess>>>() {
+	private static Comparator<Tuple<Long, Task>> taskComparator = new Comparator<Tuple<Long, Task>>() {
 
 		@Override
-		public int compare(Tuple<Long, Tuple<Task, WrappedProcess>> o1, Tuple<Long, Tuple<Task, WrappedProcess>> o2) {
+		public int compare(Tuple<Long, Task> o1, Tuple<Long, Task> o2) {
 			if (o1.getFirst() < o2.getFirst()) {
 				return -1;
 			}
@@ -100,7 +100,7 @@ public class TaskManager {
 
 	// Holds scheduled tasks waiting to be put into the task queue, in sorted order
 	// by smallest timestamp
-	private Queue<Tuple<Long, Tuple<Task, WrappedProcess>>> schedule_queue = new PriorityQueue<Tuple<Long, Tuple<Task, WrappedProcess>>>(
+	private Queue<Tuple<Long, Task>> schedule_queue = new PriorityQueue<Tuple<Long, Task>>(
 			1, taskComparator);
 
 	/***
@@ -121,19 +121,19 @@ public class TaskManager {
 		// Handle tasks to be processed
 		while (!task_queue.isEmpty()) {
 			// Grab the next task from the queue
-			Tuple<Task, WrappedProcess> task = task_queue.poll();
+			Task task = task_queue.poll();
 			try {
-				task.getFirst().execute(task.getSecond());
+				task.execute();
 				// Handle re-inserting a repeated task into the schedule queue
-				if (task.getFirst().isRepeatedTask()) {
+				if (task.isRepeatedTask()) {
 					// Re-schedule the task
-					long newTime = System.currentTimeMillis() + task.getFirst().getRepeatInterval();
-					schedule_queue.add(new Tuple<Long, Tuple<Task, WrappedProcess>>(newTime, task));
+					long newTime = System.currentTimeMillis() + task.getRepeatInterval();
+					schedule_queue.add(new Tuple<Long, Task>(newTime, task));
 				}
 			} catch (Throwable e) {
 				logger.log(
 						Level.SEVERE, "[TaskManager] Throwable while executing task "
-								+ task.getFirst().getClass().getName() + " on process ID: " + task.getSecond().getId(),
+								+ task.getClass().getName() + " on process ID: " + task.getProcess().getId(),
 						e);
 			}
 		}
@@ -143,22 +143,19 @@ public class TaskManager {
 	 * Schedules a task for immediate run on next call of executeTasks()
 	 * 
 	 * @param task    The task to be run
-	 * @param process The process that the task will run on
 	 */
-	public void scheduleTask(Task task, WrappedProcess process) {
-		this.task_queue.add(new Tuple<Task, WrappedProcess>(task, process));
+	public void scheduleTask(Task task) {
+		this.task_queue.add(task);
 	}
 
 	/**
 	 * Schedules a task to be run after a certain delay
 	 * 
 	 * @param task    The task to be run
-	 * @param process The process that the task will run on
 	 * @param delay   The run delay of the task in milliseconds
 	 */
-	public void scheduleDelayedTask(Task task, WrappedProcess process, long delay) {
-		this.schedule_queue.add(new Tuple<Long, Tuple<Task, WrappedProcess>>(System.currentTimeMillis() + delay,
-				new Tuple<Task, WrappedProcess>(task, process)));
+	public void scheduleDelayedTask(Task task, long delay) {
+		this.schedule_queue.add(new Tuple<Long, Task>(System.currentTimeMillis() + delay,task));
 	}
 
 	/**
@@ -166,10 +163,9 @@ public class TaskManager {
 	 * task will be started on its own Thread to avoid blocking the queue
 	 * 
 	 * @param task    The task to be run
-	 * @param process The process that the task will run on
 	 */
-	public void scheduleBackgroundTask(Task task, WrappedProcess process) {
-		this.scheduleTask(new RunnableTaskWrapper(task, this), process);
+	public void scheduleBackgroundTask(Task task) {
+		this.scheduleTask(new RunnableTaskWrapper(task, this));
 	}
 
 	/**
@@ -177,10 +173,9 @@ public class TaskManager {
 	 * will be started on its own Thread to avoid blocking the queue
 	 * 
 	 * @param task    The task to be run
-	 * @param process The process that the task will run on
 	 * @param delay   The run delay of the task in milliseconds
 	 */
-	public void scheduleDelayedBackgroundTask(Task task, WrappedProcess process, long delay) {
-		this.scheduleDelayedTask(new RunnableTaskWrapper(task, this), process, delay);
+	public void scheduleDelayedBackgroundTask(Task task, long delay) {
+		this.scheduleDelayedTask(new RunnableTaskWrapper(task, this), delay);
 	}
 }

@@ -20,7 +20,12 @@ import java.util.logging.Logger;
 
 import me.johnnyapol.Mira.System.WrappedProcess;
 
-public class ProcessKeepAliveTask implements Task {
+public class ProcessKeepAliveTask extends Task {
+	public ProcessKeepAliveTask(WrappedProcess process) {
+		super(process);
+		// TODO Auto-generated constructor stub
+	}
+
 	private final static Logger logger = Logger.getLogger("Mira");
 
 	@Override
@@ -29,10 +34,10 @@ public class ProcessKeepAliveTask implements Task {
 	}
 
 	@Override
-	public void execute(WrappedProcess process) throws Throwable {
-		if (!process.isRunning()) {
-			logger.warning("[KeepAlive] Restarting crashed process: " + process.getId());
-			process.getProcessManager().startProcess(process.getId());
+	public void execute() throws Throwable {
+		if (!this.getProcess().isRunning()) {
+			logger.warning("[KeepAlive] Restarting crashed process: " + this.getProcess().getId());
+			//thprocess.getProcessManager().startProcess(process.getId());
 		}
 	}
 

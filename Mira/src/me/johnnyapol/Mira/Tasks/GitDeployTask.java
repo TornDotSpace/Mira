@@ -1,17 +1,33 @@
 package me.johnnyapol.Mira.Tasks;
 
-import me.johnnyapol.Mira.System.WrappedProcess;
+import java.io.File;
 
-public class GitDeployTask implements Task {
+import org.eclipse.jgit.api.Git;
+
+import me.johnnyapol.Mira.System.WrappedProcess;
+import me.johnnyapol.Mira.Utils.Properties;
+
+public class GitDeployTask extends Task {
 	
+	public GitDeployTask(WrappedProcess process) {
+		super(process);
+	}
+
 	@Override
 	public String getName() {
 		return "GitDeploy";
 	}
 
 	@Override
-	public void execute(WrappedProcess process) throws Throwable {
-		// TODO Auto-generated method stub
+	public void execute()throws Throwable {
+		Properties config = this.getProcess().getProcessConfiguration();
+		
+		Git git = Git.open(new File(config.getString("git-repo")));
+		
+		git.checkout()
+			.setCreateBranch(false)
+			.setName("git-branch")
+			.call();
 		
 	}
 

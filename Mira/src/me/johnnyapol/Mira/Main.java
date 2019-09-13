@@ -98,8 +98,8 @@ public class Main {
 			for (String task : tasks) {
 				Class<? extends Task> clazz = (Class<? extends Task>) Class.forName(task);
 				
-				Task the_task = clazz.newInstance();
-				taskMgr.scheduleTask(the_task, mira_proc.getSecond());
+				Task the_task = (Task) clazz.getConstructors()[0].newInstance(mira_proc.getSecond());
+				taskMgr.scheduleTask(the_task);
 			}
 		}
 		

@@ -28,7 +28,7 @@ public class GitUtils {
 	static {
 		try {
 			git_data = new JsonProperties(GitUtils.class.getClassLoader().getResourceAsStream("git.properties"));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.log(Level.WARNING,
 					"Failed to load git.properties (not built with maven?). Build data will be unavailable", e);
 			git_data = new Properties();

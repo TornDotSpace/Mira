@@ -18,12 +18,18 @@ package me.johnnyapol.Mira.Tasks;
 
 import me.johnnyapol.Mira.System.WrappedProcess;
 
-public interface Task {
+public abstract class Task {
+	
+	private WrappedProcess process;
 
+	public Task(WrappedProcess process) {
+		this.process = process;
+	}
+	
 	/**
 	 * @return The name of the Task
 	 */
-	public String getName();
+	public abstract String getName();
 
 	/**
 	 * Called when the TaskManager executes the task. The core logic of should be
@@ -35,7 +41,7 @@ public interface Task {
 	 *                   and logged to avoid crashing the Thread managing the
 	 *                   TaskManager queue
 	 */
-	public void execute(WrappedProcess process) throws Throwable;
+	public abstract void execute() throws Throwable;
 
 	/**
 	 * A repeated task will be automatically reinserted into the schedule queue and
@@ -43,11 +49,15 @@ public interface Task {
 	 * 
 	 * @return Whether or not this task is a repeated task
 	 */
-	public boolean isRepeatedTask();
+	public abstract boolean isRepeatedTask();
 
 	/**
 	 * @return The delay in milliseconds of when the task should be scheduled to run
 	 *         again (if the task is a repeated task).
 	 */
-	public long getRepeatInterval();
+	public abstract long getRepeatInterval();
+	
+	public WrappedProcess getProcess() {
+		return this.process;
+	}
 }
