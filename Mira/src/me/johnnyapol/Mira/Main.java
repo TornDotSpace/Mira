@@ -101,6 +101,15 @@ public class Main {
 				Task the_task = (Task) clazz.getConstructors()[0].newInstance(mira_proc.getSecond());
 				taskMgr.scheduleTask(the_task);
 			}
+			
+			tasks = proc.getString("proc.background_tasks").split(";");
+			
+			for (String task : tasks) {
+				Class<? extends Task> clazz = (Class<? extends Task>) Class.forName(task);
+				
+				Task the_task = (Task) clazz.getConstructors()[0].newInstance(mira_proc.getSecond());
+				taskMgr.scheduleBackgroundTask(the_task);
+			}
 		}
 		
 		while (true) {

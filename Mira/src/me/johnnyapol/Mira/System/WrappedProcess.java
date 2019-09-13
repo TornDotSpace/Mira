@@ -162,6 +162,10 @@ public class WrappedProcess {
 		return this.manager;
 	}
 	
+	public int waitFor() throws InterruptedException {
+		return this.process.waitFor();
+	}
+	
 	public File getSTDOUTLog() {
 		return this.stdout;
 	}

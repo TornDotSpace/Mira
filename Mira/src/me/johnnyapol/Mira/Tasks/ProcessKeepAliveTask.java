@@ -35,10 +35,10 @@ public class ProcessKeepAliveTask extends Task {
 
 	@Override
 	public void execute() throws Throwable {
-		if (!this.getProcess().isRunning()) {
-			logger.warning("[KeepAlive] Restarting crashed process: " + this.getProcess().getId());
-			//thprocess.getProcessManager().startProcess(process.getId());
-		}
+		logger.warning("[KeepAlive] Restarting crashed process: "+  this.getProcess().getId() 
+					+ System.lineSeparator() + " (exited with status code " + this.getProcess().waitFor() + ")");
+		
+		this.getProcess().getProcessManager().restartProcess(this.getProcess().getId());
 	}
 
 	@Override
