@@ -76,7 +76,7 @@ public class Main {
 			}
 		}
 		
-		ConfigFile cfg = new ConfigFile();
+		ConfigFile cfg = new ConfigFile(config_folder);
 		
 		List<Properties> processes = cfg.getProcesses();
 		

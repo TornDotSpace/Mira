@@ -33,12 +33,12 @@ public class ConfigFile {
 	
 	private final static Logger logger = Logger.getLogger("Mira");
 	
-	public ConfigFile() throws IOException {
-		this.init();
+	public ConfigFile(File config_folder) throws IOException {
+		this.init(config_folder);
 	}
 	
-	private void init() throws IOException {
-		File cfg = new File("config", "mira.cfg");
+	private void init(File cfg_folder) throws IOException {
+		File cfg = new File(cfg_folder, "mira.cfg");
 		BufferedReader fReader = new BufferedReader(new FileReader(cfg));
 		
 		String line = null;
@@ -78,6 +78,7 @@ public class ConfigFile {
 		}
 		fReader.close();
 	}	
+	
 	
 	public Properties getMiraConfig() {
 		return this.mira_config;
